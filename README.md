@@ -6,5 +6,6 @@ The goal of this script is to capture open bucket urls in a clean and optimized 
 # Features
 - Resume url scrapes if the script is interrupted
 - Start the scrape with a marker or prefix
+- Autocheck if the bucket has only the first page exposed, and end the scrape if so
 - Export urls to a txt file, seperated by a specific url count
 - Export urls of a specific filter
