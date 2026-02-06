@@ -10,14 +10,18 @@ class awsExport:
     URLS_PER_FILE = 50000
     
     def __init__(self):
-        self.initDatabase()
-        
         self.bucketID = None
         self.writeDir = None
+        self.expFilter = None
+        
+        
+        self.initDatabase()
         
         self.getBucketToExport()
         
         self.initWriteDirectory()
+        
+        self.initFilter()
         
         self.exportBucket()
     
@@ -48,6 +52,12 @@ class awsExport:
     def initWriteDirectory(self):
         self.writeDir = input("Input the folder to write the urls:")
     
+    
+    def initFilter(self):
+        filter = input("Type in any filter for the export. If you don't want to filter, press enter:")
+        
+        if (filter != ""):
+            self.expFilter = filter
     
     
     def writeUrls(self, urlArray, page):
@@ -81,8 +91,16 @@ class awsExport:
             offset = page * self.URLS_PER_FILE
             urlArray = []
             
+            # prepare query
+            if (self.expFilter != None):
+                query = 'SELECT keyUrl FROM Keys WHERE bucketID=? AND keyUrl LIKE "%'+self.expFilter+'%" LIMIT ? OFFSET ?'
+                queryParams = [self.bucketID, self.URLS_PER_FILE, offset]
+            else:
+                query = 'SELECT keyUrl FROM Keys WHERE bucketID=? LIMIT ? OFFSET ?'
+                queryParams = [self.bucketID, self.URLS_PER_FILE, offset]
+            
             # Retrieve key list
-            self.cur.execute("SELECT keyUrl FROM Keys WHERE bucketID=? LIMIT ? OFFSET ?", [self.bucketID, self.URLS_PER_FILE, offset])
+            self.cur.execute(query, queryParams)
             keyData = self.cur.fetchall()
             pageCount = len(keyData)
 
